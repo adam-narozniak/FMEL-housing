@@ -80,7 +80,6 @@ if __name__ == "__main__":
             if was_outside_working_hours:
                 go_to_booking(driver, username, password, date)
                 was_outside_working_hours = False
-            driver.implicitly_wait(4)
             driver.refresh()
             refreshed_page = driver.page_source
             # there is no string indicating no places available
