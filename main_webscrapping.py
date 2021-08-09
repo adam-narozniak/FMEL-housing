@@ -1,3 +1,4 @@
+import argparse
 import json
 import os
 import platform
@@ -8,6 +9,12 @@ from selenium import webdriver
 CREDENTIALS_CONFIGURATION_PATH = "./resources/credentials_config.json"
 START_PAGE = "https://accommodation.fmel.ch/StarRezPortal/83D6F19F/71/923/Book_now-Contract_dates"
 # START_PAGE = "https://accommodation.fmel.ch/StarRezPortal/AA222FD0/71/929/Book_now-House_selection?TermID=1302&ClassificationID=1&DateStart=16%20August%202021&DateEnd=15%20August%202026"
+
+def make_parser():
+    parser = argparse.ArgumentParser(description="Tool to detect FMEL housing website changes")
+    parser.add_argument("-d", "--date", type=str, required=False, default="16/08",
+                        help="Rent starting date: 16/08 or 01/09 or 16/09")
+    return parser
 
 
 def log_in(driver, username, password):
@@ -23,17 +30,21 @@ def log_in(driver, username, password):
     print("log in done")
 
 
-def go_to_booking(driver, username, password):
+def go_to_booking(driver, username, password, date):
     driver.get(START_PAGE)
     log_in(driver, username, password)
     driver.implicitly_wait(4)
-    # 16/08
-    driver.find_element_by_xpath(
-        "/html/body/div[2]/section[1]/div/article/div/div/div/section/div[1]/section/form/div/div[3]/div[2]/button").click()
-    # 01/09
-    # /html/body/div[2]/section[1]/div/article/div/div/div/section/div[1]/section/form/div/div[4]/div[2]/button
-    # 16/09
-    # /html/body/div[2]/section[1]/div/article/div/div/div/section/div[1]/section/form/div/div[5]/div[2]/button
+    if date == "16/08":
+        driver.find_element_by_xpath("/html/body/div[2]/section[1]/div/article/div/div/div/"
+                                     "section/div[1]/section/form/div/div[3]/div[2]/button").click()
+    elif date == "01/09":
+        driver.find_element_by_xpath("/html/body/div[2]/section[1]/div/article/div/div/div/"
+                                     "section/div[1]/section/form/div/div[4]/div[2]/button").click()
+    elif date == "16/09":
+        driver.find_element_by_xpath("/html/body/div[2]/section[1]/div/article/div/div/div/"
+                                     "section/div[1]/section/form/div/div[5]/div[2]/button").click()
+    else:
+        raise Exception(f"Given date: {date} is not supported")
 
 
 def get_credentials():
@@ -57,6 +68,9 @@ def sound_notification():
 
 if __name__ == "__main__":
     username, password = get_credentials()
+    parser = make_parser()
+    args = parser.parse_args()
+    date = args.date
     driver = webdriver.Chrome()
     was_outside_working_hours = True
     while True:
@@ -64,7 +78,7 @@ if __name__ == "__main__":
         if 6 <= now < 18:
             # log in for the first time/ you were in inactive hours so probably log in is needed
             if was_outside_working_hours:
-                go_to_booking(driver, username, password)
+                go_to_booking(driver, username, password, date)
                 was_outside_working_hours = False
             driver.implicitly_wait(4)
             driver.refresh()
@@ -72,6 +86,7 @@ if __name__ == "__main__":
             # there is no string indicating no places available
             if refreshed_page.find("Please check regularly for new availabilities") == -1:
                 print("page has changed!")
+                print(driver.page_source)
                 # notify about that
                 while True:
                     sound_notification()
