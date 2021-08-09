@@ -1,15 +1,16 @@
-import pyautogui
 import argparse
-import pathlib
-import json
-from mouse_input import *
-from pynput import mouse
-import time
-import numpy as np
-from numpy.random import default_rng
-from datetime import datetime
-import os
 import datetime
+import json
+import os
+import pathlib
+import time
+
+import numpy as np
+import pyautogui
+from numpy.random import default_rng
+from pynput import mouse
+
+from mouse_input import *
 
 
 def make_parser():
@@ -50,7 +51,6 @@ def get_screenshot_coordianates():
 if __name__ == '__main__':
     time.sleep(10)
     start_time = time.process_time()
-    eight_o_clock = datetime.datetime.now().replace(hour=8, minute=0)
     parser = make_parser()
     args = parser.parse_args()
     output_directory = args.output_directory
@@ -96,12 +96,12 @@ if __name__ == '__main__':
     print(numpy_screenshot)
     rng = default_rng()
     while True:
-        now = datetime.datetime.now()
+        now = datetime.datetime.now().hour
         pyautogui.click(refresh_button_center_location)
         noise = rng.normal(loc=4, scale=2)
-        sleep_time = max(0, 30 + noise)
+        sleep_time = max(0, 10)  # + noise)
         time.sleep(sleep_time)
-        if now > eight_o_clock:
+        if 6 <= now < 18:
             new_screenshot = pyautogui.screenshot().crop((clicks_coordinates[0]["x"], clicks_coordinates[0]["y"],
                                                           clicks_coordinates[1]["x"], clicks_coordinates[1]["y"]))
             numpy_new_screenshot = np.array(new_screenshot)
