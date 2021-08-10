@@ -2,11 +2,9 @@ import argparse
 import json
 import os
 import platform
-import time
 from datetime import datetime
 
 from selenium import webdriver
-from selenium.webdriver.common.keys import Keys
 
 CREDENTIALS_CONFIGURATION_PATH = "./resources/credentials_config.json"
 START_PAGE = "https://accommodation.fmel.ch/StarRezPortal/83D6F19F/71/923/Book_now-Contract_dates"
