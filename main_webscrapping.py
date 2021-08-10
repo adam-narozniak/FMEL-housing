@@ -2,9 +2,11 @@ import argparse
 import json
 import os
 import platform
+import time
 from datetime import datetime
 
 from selenium import webdriver
+from selenium.webdriver.common.keys import Keys
 
 CREDENTIALS_CONFIGURATION_PATH = "./resources/credentials_config.json"
 START_PAGE = "https://accommodation.fmel.ch/StarRezPortal/83D6F19F/71/923/Book_now-Contract_dates"
@@ -41,8 +43,15 @@ def go_to_booking(driver, username, password, date):
         driver.find_element_by_xpath("/html/body/div[2]/section[1]/div/article/div/div/div/"
                                      "section/div[1]/section/form/div/div[4]/div[2]/button").click()
     elif date == "16/09":
-        driver.find_element_by_xpath("/html/body/div[2]/section[1]/div/article/div/div/div/"
-                                     "section/div[1]/section/form/div/div[5]/div[2]/button").click()
+        target = driver.find_element_by_xpath("/html/body/div[2]/section[1]/div/article/div/div/div/"
+                                     "section/div[1]/section/form/div/div[5]/div[2]/button")
+        driver.execute_script('arguments[0].scrollIntoView(true);', target)
+        target.click()
+    elif date == "01/10":
+        target = driver.find_element_by_xpath("/html/body/div[2]/section[1]/div/article/div/div/div/"
+                                     "section/div[1]/section/form/div/div[6]/div[2]/button")
+        driver.execute_script('arguments[0].scrollIntoView(true);', target)
+        target.click()
     else:
         raise Exception(f"Given date: {date} is not supported")
 
