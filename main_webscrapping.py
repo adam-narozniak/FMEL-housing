@@ -109,7 +109,7 @@ if __name__ == "__main__":
             try:
                 driver.refresh()
             except selenium.common.exceptions.TimeoutException:
-                driver.refresh()
+                continue
             refreshed_page = driver.page_source
             # there is no string indicating no places available
             if refreshed_page.find("Please check regularly for new availabilities") == -1:
