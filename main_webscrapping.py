@@ -8,6 +8,7 @@ import yagmail
 
 import selenium.common.exceptions
 from selenium import webdriver
+import selenium
 
 FMEL_CREDENTIALS_CONFIGURATION_PATH = "./resources/credentials_config.json"
 EMAIL_CREDENTIALS_CONFIGURATION_PATH = "./resources/email_credentials_config.json"
@@ -105,15 +106,19 @@ if __name__ == "__main__":
             # log in for the first time/ you were in inactive hours so probably log in is needed
             if was_outside_working_hours:
                 go_to_booking(driver, fmel_username, fmel_password, date)
+                url = driver.current_url
                 was_outside_working_hours = False
             try:
                 driver.refresh()
             except selenium.common.exceptions.TimeoutException:
+                time.sleep(5)
                 continue
             refreshed_page = driver.page_source
             # there is no string indicating no places available
+            if refreshed_page.find("This page isn’t working") != -1:
+                continue
             if refreshed_page.find("Please check regularly for new availabilities") == -1:
-                print("page has changed!")
+                print(f"page has changed at {datetime.now()}!")
                 print(driver.page_source)
                 # notify about that
                 if mode == "voice":
@@ -121,7 +126,7 @@ if __name__ == "__main__":
                         sound_notification()
                 elif mode == "email":
                     # send an email and go back to checking availability after 5 minutes
-                    yag.send(to, subject, f"Check this page:\n{driver.current_url}")
+                    yag.send(to, subject, f"Check this page for date {date}:\n{driver.current_url}")
                     time.sleep(300)
         else:
             was_outside_working_hours = True
