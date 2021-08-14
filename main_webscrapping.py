@@ -13,7 +13,7 @@ import selenium
 FMEL_CREDENTIALS_CONFIGURATION_PATH = "./resources/credentials_config.json"
 EMAIL_CREDENTIALS_CONFIGURATION_PATH = "./resources/email_credentials_config.json"
 START_PAGE = "https://accommodation.fmel.ch/StarRezPortal/83D6F19F/71/923/Book_now-Contract_dates"
-# START_PAGE = "https://accommodation.fmel.ch/StarRezPortal/AA222FD0/71/929/Book_now-House_selection?TermID=1302&ClassificationID=1&DateStart=16%20August%202021&DateEnd=15%20August%202026"
+
 
 def make_parser():
     parser = argparse.ArgumentParser(description="Tool to detect FMEL housing website changes")
@@ -87,7 +87,7 @@ def set_up_email(email_username, email_password):
     return yag
 
 
-if __name__ == "__main__":
+def main():
     parser = make_parser()
     args = parser.parse_args()
     mode = args.mode
@@ -106,7 +106,6 @@ if __name__ == "__main__":
             # log in for the first time/ you were in inactive hours so probably log in is needed
             if was_outside_working_hours:
                 go_to_booking(driver, fmel_username, fmel_password, date)
-                url = driver.current_url
                 was_outside_working_hours = False
             try:
                 driver.refresh()
@@ -114,12 +113,15 @@ if __name__ == "__main__":
                 time.sleep(5)
                 continue
             refreshed_page = driver.page_source
-            # there is no string indicating no places available
-            if refreshed_page.find("This page isn’t working") != -1:
+            if refreshed_page.find("This page isn’t working") != -1 or refreshed_page == "":
                 continue
+            # there is no string indicating no places available
             if refreshed_page.find("Please check regularly for new availabilities") == -1:
-                print(f"page has changed at {datetime.now()}!")
-                print(driver.page_source)
+                change_time = datetime.now()
+                print(f"page has changed at {change_time}!")
+                with open(f"./page_sources/ps_for_{date.replace('/', '.')}_{change_time}.txt", "w") as f:
+                    f.write(driver.page_source)
+                driver.save_screenshot(f"./screenshots/fmel_{date.replace('/', '.')}_{change_time}.png")
                 # notify about that
                 if mode == "voice":
                     while True:
@@ -131,3 +133,13 @@ if __name__ == "__main__":
         else:
             was_outside_working_hours = True
             time.sleep(60)
+
+
+if __name__ == "__main__":
+    while True:
+        try:
+            main()
+        except Exception as e:
+            print(e)
+            time.sleep(120)
+            main()
