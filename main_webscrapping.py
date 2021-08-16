@@ -41,21 +41,23 @@ def go_to_booking(driver, username, password, date):
     driver.get(START_PAGE)
     log_in(driver, username, password)
     driver.implicitly_wait(4)
-    if date == "01/08":
+    if date == "16/08":
         driver.find_element_by_xpath("/html/body/div[2]/section[1]/div/article/div/div/div/"
                                      "section/div[1]/section/form/div/div[2]/div[2]/button").click()
-    elif date == "16/08":
-        driver.find_element_by_xpath("/html/body/div[2]/section[1]/div/article/div/div/div/"
-                                     "section/div[1]/section/form/div/div[3]/div[2]/button").click()
     elif date == "01/09":
         driver.find_element_by_xpath("/html/body/div[2]/section[1]/div/article/div/div/div/"
-                                     "section/div[1]/section/form/div/div[4]/div[2]/button").click()
+                                     "section/div[1]/section/form/div/div[3]/div[2]/button").click()
     elif date == "16/09":
+        target = driver.find_element_by_xpath("/html/body/div[2]/section[1]/div/article/div/div/div/"
+                                              "section/div[1]/section/form/div/div[4]/div[2]/button")
+        driver.execute_script('arguments[0].scrollIntoView(true);', target)
+        target.click()
+    elif date == "01/10":
         target = driver.find_element_by_xpath("/html/body/div[2]/section[1]/div/article/div/div/div/"
                                               "section/div[1]/section/form/div/div[5]/div[2]/button")
         driver.execute_script('arguments[0].scrollIntoView(true);', target)
         target.click()
-    elif date == "01/10":
+    elif date == "16/10":
         target = driver.find_element_by_xpath("/html/body/div[2]/section[1]/div/article/div/div/div/"
                                               "section/div[1]/section/form/div/div[6]/div[2]/button")
         driver.execute_script('arguments[0].scrollIntoView(true);', target)
