@@ -123,7 +123,14 @@ def main():
                 print(f"page has changed at {change_time}!")
                 with open(f"./page_sources/ps_for_{date.replace('/', '.')}_{change_time}.txt", "w") as f:
                     f.write(driver.page_source)
+                target = driver.find_element_by_xpath("/html/body/div[2]/section[1]/div/article/div/div/div/section/"
+                                                      "div[1]/section/form/div/div[2]/div[2]/div/div[2]/button")
+                driver.execute_script('arguments[0].scrollIntoView(true);', target)
                 driver.save_screenshot(f"./screenshots/fmel_{date.replace('/', '.')}_{change_time}.png")
+                target.click()
+                driver.save_screenshot(f"./screenshots/selected_fmel_{date.replace('/', '.')}_{change_time}.png")
+                with open(f"./page_sources/selected_ps_for_{date.replace('/', '.')}_{change_time}.txt", "w") as f:
+                    f.write(driver.page_source)
                 # notify about that
                 if mode == "voice":
                     while True:
