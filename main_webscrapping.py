@@ -76,14 +76,14 @@ def get_credentials(credentials_configuration_path):
     return username, password
 
 
-def sound_notification(duration):
+def sound_notification(duration, date):
     system_name = platform.system()
     if system_name == "Darwin" or system_name == "Linux":
         delta = datetime.timedelta(seconds=duration)
         begin_time = datetime.datetime.now()
         now = datetime.datetime.now()
         while now < begin_time + delta:
-            os.system("""say "Possibly there is a new free place at FMEL." """)
+            os.system(f"""say "Possibly there is a new free place at FMEL on the {date}" """)
             now = datetime.datetime.now()
     else:
         raise Exception(f"System not supported")
@@ -127,7 +127,7 @@ def main():
     was_outside_working_hours = True
     while True:
         now = datetime.datetime.now().hour
-        if True:  # 6 <= now < 18:
+        if 8 <= now < 18:
             # log in for the first time/ you were in inactive hours so probably log in is needed
             if was_outside_working_hours:
                 go_to_booking(driver, fmel_username, fmel_password, date)
@@ -146,40 +146,41 @@ def main():
                 print(f"page has changed at {change_time}!")
                 with open(f"./page_sources/ps_for_{date.replace('/', '.')}_{change_time}.txt", "w") as f:
                     f.write(driver.page_source)
-                target = driver.find_element_by_xpath("/html/body/div[2]/section[1]/div/article/div/div/div/section/"
-                                                      "div[1]/section/form/div/div[2]/div[2]/div/div[2]/button")
-                driver.execute_script('arguments[0].scrollIntoView(true);', target)
+                # target = driver.find_element_by_xpath("/html/body/div[2]/section[1]/div/article/div/div/div/section/"
+                #                                       "div[1]/section/form/div/div[2]/div[2]/div/div[2]/button")
+                # driver.execute_script('arguments[0].scrollIntoView(true);', target)
+                driver.execute_script("window.scrollTo(0, document.body.scrollHeight);")
                 driver.save_screenshot(f"./screenshots/fmel_{date.replace('/', '.')}_{change_time}.png")
-                # click select button
-                target.click()
-                driver.implicitly_wait(0.3)
-                with open(f"./page_sources/after_select_was_clicked/ps_for_{date.replace('/', '.')}_{change_time}.txt",
-                          "w") as f:
-                    f.write(driver.page_source)
-                driver.save_screenshot(
-                    f"./screenshots/after_select_was_clicked/fmel_{date.replace('/', '.')}_{change_time}.png")
-                # click book now
-                book_button = driver.find_element_by_xpath("/html/body/div[2]/section[1]/div/article/div/div/div/"
-                                                           "section/div[1]/section/form/div/div[2]/div[2]/div[1]/"
-                                                           "div[1]/div[3]/button[1]")
-                book_button.click()
-                driver.implicitly_wait(0.3)
-                with open(f"./page_sources/after_book_was_clicked/ps_for_{date.replace('/', '.')}_{change_time}.txt",
-                          "w") as f:
-                    f.write(driver.page_source)
-                driver.save_screenshot(
-                    f"./screenshots/after_book_was_clicked/fmel_{date.replace('/', '.')}_{change_time}.png")
+                # # click select button
+                # target.click()
+                # driver.implicitly_wait(0.3)
+                # with open(f"./page_sources/after_select_was_clicked/ps_for_{date.replace('/', '.')}_{change_time}.txt",
+                #           "w") as f:
+                #     f.write(driver.page_source)
+                # driver.save_screenshot(
+                #     f"./screenshots/after_select_was_clicked/fmel_{date.replace('/', '.')}_{change_time}.png")
+                # # click book now
+                # book_button = driver.find_element_by_xpath("/html/body/div[2]/section[1]/div/article/div/div/div/"
+                #                                            "section/div[1]/section/form/div/div[2]/div[2]/div[1]/"
+                #                                            "div[1]/div[3]/button[1]")
+                # book_button.click()
+                # driver.implicitly_wait(0.3)
+                # with open(f"./page_sources/after_book_was_clicked/ps_for_{date.replace('/', '.')}_{change_time}.txt",
+                #           "w") as f:
+                #     f.write(driver.page_source)
+                # driver.save_screenshot(
+                #     f"./screenshots/after_book_was_clicked/fmel_{date.replace('/', '.')}_{change_time}.png")
                 # notify about that
                 if mode == "voice":
-                    while True:
-                        sound_notification(15)
+                    sound_notification(300, date)
+                    break
                 elif mode == "email":
                     # send an email and go back to checking availability after 5 minutes
                     yag.send(to, subject, f"Check this page for date {date}:\n{driver.current_url}")
                     time.sleep(300)
         else:
             was_outside_working_hours = True
-            time.sleep(60)
+            time.sleep(300)
 
 
 if __name__ == "__main__":
@@ -188,5 +189,4 @@ if __name__ == "__main__":
             main()
         except Exception as e:
             print(e)
-            time.sleep(120)
-            main()
+            os.system("""say "Exception occurred" """)
