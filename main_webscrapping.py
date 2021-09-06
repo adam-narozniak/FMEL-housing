@@ -47,20 +47,20 @@ def go_to_booking(driver, username, password, date):
                                      "section/div[1]/section/form/div/div[2]/div[2]/button").click()
     elif date == "01/09":
         driver.find_element_by_xpath("/html/body/div[2]/section[1]/div/article/div/div/div/"
-                                     "section/div[1]/section/form/div/div[3]/div[2]/button").click()
+                                     "section/div[1]/section/form/div/div[2]/div[2]/button").click()
     elif date == "16/09":
         target = driver.find_element_by_xpath("/html/body/div[2]/section[1]/div/article/div/div/div/"
-                                              "section/div[1]/section/form/div/div[4]/div[2]/button")
+                                              "section/div[1]/section/form/div/div[3]/div[2]/button")
         driver.execute_script('arguments[0].scrollIntoView(true);', target)
         target.click()
     elif date == "01/10":
         target = driver.find_element_by_xpath("/html/body/div[2]/section[1]/div/article/div/div/div/"
-                                              "section/div[1]/section/form/div/div[5]/div[2]/button")
+                                              "section/div[1]/section/form/div/div[4]/div[2]/button")
         driver.execute_script('arguments[0].scrollIntoView(true);', target)
         target.click()
     elif date == "16/10":
         target = driver.find_element_by_xpath("/html/body/div[2]/section[1]/div/article/div/div/div/"
-                                              "section/div[1]/section/form/div/div[6]/div[2]/button")
+                                              "section/div[1]/section/form/div/div[5]/div[2]/button")
         driver.execute_script('arguments[0].scrollIntoView(true);', target)
         target.click()
     else:
@@ -127,18 +127,21 @@ def main():
     was_outside_working_hours = True
     while True:
         now = datetime.datetime.now().hour
-        if 8 <= now < 18:
+        if 8 <= now < 24:
             # log in for the first time/ you were in inactive hours so probably log in is needed
             if was_outside_working_hours:
                 go_to_booking(driver, fmel_username, fmel_password, date)
                 was_outside_working_hours = False
             try:
+                time.sleep(2.5)
                 driver.refresh()
             except selenium.common.exceptions.TimeoutException:
                 time.sleep(5)
                 continue
             refreshed_page = driver.page_source
-            if refreshed_page.find("This page isn’t working") != -1 or refreshed_page == "":
+            if refreshed_page.find("This page isn’t working") != -1 or refreshed_page == "" or \
+                    refreshed_page.find("You don't have permission to access this resource.") != -1 or\
+                    refreshed_page.find("This site can’t be reached") != -1:
                 continue
             # there is no string indicating no places available
             if refreshed_page.find("Please check regularly for new availabilities") == -1:
