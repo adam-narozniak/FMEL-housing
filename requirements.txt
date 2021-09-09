@@ -1,5 +1,7 @@
 numpy
 pyautogui
 pynput
+win32api; sys_platform == "win32"
+pyttsx3
 selenium
 yagmail

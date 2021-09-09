@@ -9,6 +9,7 @@ import sys
 
 import selenium
 import selenium.common.exceptions
+import pyttsx3
 import yagmail
 from selenium import webdriver
 
@@ -83,13 +84,18 @@ def get_credentials(credentials_configuration_path):
 
 def sound_notification(duration, date):
     system_name = platform.system()
+    now = datetime.datetime.now()
+    delta = datetime.timedelta(seconds=duration)
+    begin_time = datetime.datetime.now()
     if system_name == "Darwin" or system_name == "Linux":
-        delta = datetime.timedelta(seconds=duration)
-        begin_time = datetime.datetime.now()
-        now = datetime.datetime.now()
         while now < begin_time + delta:
             os.system(f"""say "Possibly there is a new free place at FMEL on the {date}" """)
             now = datetime.datetime.now()
+    elif system_name.lower() == "win32":
+        engine = pyttsx3.init()
+        while now < begin_time + delta:
+            engine.say(f"Possibly there is a new free place at FMEL on the {date}")
+            engine.runAndWait()
     else:
         raise Exception(f"System not supported")
 
