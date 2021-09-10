@@ -91,7 +91,7 @@ def get_credentials(credentials_configuration_path):
 
 
 def sound_notification(duration, date):
-    logger.debug()
+    logger.debug("Try to sound-notify")
     system_name = platform.system()
     now = datetime.datetime.now()
     delta = datetime.timedelta(seconds=duration)
@@ -120,12 +120,16 @@ def prepare_dirs():
     logger.debug("Creating directories")
     page_sources = pathlib.Path("./page_sources")
     page_sources.mkdir(exist_ok=True)
+    new_offers = page_sources / "new_offers"
+    new_offers.mkdir(exist_ok=True)
     ps_after_book_was_clicked = page_sources / "after_book_was_clicked"
     ps_after_book_was_clicked.mkdir(exist_ok=True)
     ps_after_select_was_clicked = page_sources / "after_select_was_clicked"
     ps_after_select_was_clicked.mkdir(exist_ok=True)
     screenshots = pathlib.Path("./screenshots")
     screenshots.mkdir(exist_ok=True)
+    sc_new_offers = screenshots / "new_offers"
+    sc_new_offers.mkdir(exist_ok=True)
     sc_after_book_was_clicked = screenshots / "after_book_was_clicked"
     sc_after_book_was_clicked.mkdir(exist_ok=True)
     sc_after_select_was_clicked = screenshots / "after_select_was_clicked"
@@ -176,14 +180,15 @@ def main(driver):
                 logger.info("New place is available")
                 change_time = datetime.datetime.now()
                 print(f"page has changed at {change_time}!")
-                with open(f"./page_sources/ps_for_{date.replace('/', '.')}_{change_time}.txt", "w") as f:
+                with open(f"./page_sources/new_offers/fmel_offer_starting_{date.replace('/', '.')}"
+                          f"_found_{change_time}.txt", "w") as f:
                     f.write(driver.page_source)
                 # driver.execute_script("window.scrollTo(0, document.body.scrollHeight);")
                 target = driver.find_element_by_xpath(
                     "/html/body/div[2]/section[1]/div/article/div/div/div/section/div[1]/section/form/div/"
                     "div[2]/div[2]/div/div[2]/button")
                 driver.execute_script('arguments[0].scrollIntoView(true);', target)
-                driver.save_screenshot(f"./screenshots/fmel_offer_starting_{date.replace('/', '.')}_"
+                driver.save_screenshot(f"./screenshots/new_offers/fmel_offer_starting_{date.replace('/', '.')}_"
                                        f"found_{change_time}.png")
                 time.sleep(0.3)
                 if full_automation is True:
