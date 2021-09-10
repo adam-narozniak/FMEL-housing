@@ -1,6 +1,7 @@
 import argparse
 import datetime
 import json
+import logging
 import os
 import pathlib
 import platform
@@ -13,9 +14,13 @@ import pyttsx3
 import yagmail
 from selenium import webdriver
 
+import logger_module
+
 FMEL_CREDENTIALS_CONFIGURATION_PATH = "./resources/credentials_config.json"
 EMAIL_CREDENTIALS_CONFIGURATION_PATH = "./resources/email_credentials_config.json"
 START_PAGE = "https://accommodation.fmel.ch/StarRezPortal/83D6F19F/71/923/Book_now-Contract_dates"
+logger_module.setup_logger()
+logger = logging.getLogger("FMEL_HOUSING.main")
 
 
 def make_parser():
@@ -33,6 +38,7 @@ def make_parser():
 
 
 def log_in(driver, username, password):
+    logger.debug("Logging in")
     username_field = driver.find_element_by_name("Username")
     username_field.clear()
     username_field.send_keys(username)
@@ -42,12 +48,13 @@ def log_in(driver, username, password):
     password_field.send_keys(password)
 
     driver.find_element_by_class_name("login-button").click()
-    print("log in done")
 
 
 def go_to_booking(driver, username, password, date):
     driver.get(START_PAGE)
     log_in(driver, username, password)
+    logger.info("Log in done")
+    logger.debug("Try to go the page starting with the given date")
     if date == "16/08":
         driver.find_element_by_xpath("/html/body/div[2]/section[1]/div/article/div/div/div/"
                                      "section/div[1]/section/form/div/div[2]/div[2]/button").click()
@@ -72,6 +79,8 @@ def go_to_booking(driver, username, password, date):
     else:
         raise Exception(f"Given date: {date} is not supported")
 
+    logger.info("Date chosen")
+
 
 def get_credentials(credentials_configuration_path):
     with open(credentials_configuration_path, "r") as f:
@@ -83,6 +92,7 @@ def get_credentials(credentials_configuration_path):
 
 
 def sound_notification(duration, date):
+    logger.debug()
     system_name = platform.system()
     now = datetime.datetime.now()
     delta = datetime.timedelta(seconds=duration)
@@ -102,11 +112,13 @@ def sound_notification(duration, date):
 
 def set_up_email(email_username, email_password):
     """Sets up email connection and returns email manager object."""
+    logger.debug("Setting up email manager")
     yag = yagmail.SMTP(email_username, email_password)
     return yag
 
 
 def prepare_dirs():
+    logger.debug("Creating directories")
     page_sources = pathlib.Path("./page_sources")
     page_sources.mkdir(exist_ok=True)
     ps_after_book_was_clicked = page_sources / "after_book_was_clicked"
@@ -119,6 +131,8 @@ def prepare_dirs():
     sc_after_book_was_clicked.mkdir(exist_ok=True)
     sc_after_select_was_clicked = screenshots / "after_select_was_clicked"
     sc_after_select_was_clicked.mkdir(exist_ok=True)
+    logging_path = pathlib.Path("./.logs")
+    logging_path.mkdir(exist_ok=True)
 
 
 def main(driver):
@@ -129,7 +143,9 @@ def main(driver):
     full_automation = args.full_automation
     refresh_rate = args.refresh_rate
     prepare_dirs()
+    logger.info("Directories created")
     fmel_username, fmel_password = get_credentials(FMEL_CREDENTIALS_CONFIGURATION_PATH)
+    logger.info("Credentials loaded")
     if mode == "email":
         email_username, email_password = get_credentials(EMAIL_CREDENTIALS_CONFIGURATION_PATH)
         yag = set_up_email(email_username, email_password)
@@ -158,6 +174,7 @@ def main(driver):
                 continue
             # there is no string indicating no places available
             if refreshed_page.find("Please check regularly for new availabilities") == -1:
+                logger.info("New place is available")
                 change_time = datetime.datetime.now()
                 print(f"page has changed at {change_time}!")
                 with open(f"./page_sources/ps_for_{date.replace('/', '.')}_{change_time}.txt", "w") as f:
@@ -169,10 +186,10 @@ def main(driver):
                 driver.execute_script('arguments[0].scrollIntoView(true);', target)
                 driver.save_screenshot(f"./screenshots/fmel_offer_starting_{date.replace('/', '.')}_"
                                        f"found_{change_time}.png")
-                # click select button
-                target.click()
                 time.sleep(0.3)
                 if full_automation is True:
+                    # click select button
+                    target.click()
                     with open(f"./page_sources/after_select_was_clicked/fmel_offer_starting_{date.replace('/', '.')}"
                               f"_found_{change_time}.txt", "w") as f:
                         f.write(driver.page_source)
@@ -192,6 +209,7 @@ def main(driver):
                     driver.save_screenshot(
                         f"./screenshots/after_book_was_clicked/fmel_offer_starting_{date.replace('/', '.')}"
                         f"_found_{change_time}.png")
+                logger.debug("Try to notify")
                 # notify about that
                 if mode == "voice":
                     sound_notification(300, date)
@@ -199,6 +217,7 @@ def main(driver):
                     # send an email and go back to checking availability after 5 minutes
                     yag.send(to, subject + " starting " + date,
                              f"Check this page for date {date}:\n{driver.current_url}")
+                logger.info("Notification sent")
                 sys.exit(1)
         else:
             was_outside_working_hours = True
@@ -212,5 +231,5 @@ if __name__ == "__main__":
             main(driver)
         except Exception as e:
             driver.quit()
-            print(e)
-            os.system("""say "Exception occurred" """)
+            logger.error(e)
+            print("Let the programmer know that the exception occurred to make this program work better.")
