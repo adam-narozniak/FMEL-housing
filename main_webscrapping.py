@@ -26,7 +26,7 @@ logger = logging.getLogger("FMEL_HOUSING.main")
 def make_parser():
     parser = argparse.ArgumentParser(description="Tool to detect FMEL housing website changes")
     parser.add_argument("-m", "--mode", type=str, required=False, default="voice",
-                        help="Choose between voice and email notification. [voice|email]")
+                        help="Choose between voice, email and both notifications. [voice|email|mix]")
     parser.add_argument("-d", "--date", type=str, required=False, default="16/08",
                         help="Rent starting date: 16/08 or 01/09 or 16/09")
     parser.add_argument("-f", "--full_automation", required=False, action="store_true",
@@ -217,6 +217,10 @@ def main(driver):
                     # send an email and go back to checking availability after 5 minutes
                     yag.send(to, subject + " starting " + date,
                              f"Check this page for date {date}:\n{driver.current_url}")
+                elif mode == "mix":
+                    yag.send(to, subject + " starting " + date,
+                             f"Check this page for date {date}:\n{driver.current_url}")
+                    sound_notification(300, date)
                 logger.info("Notification sent")
                 sys.exit(1)
         else:
