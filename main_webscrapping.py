@@ -27,8 +27,8 @@ def make_parser():
     parser = argparse.ArgumentParser(description="Tool to detect FMEL housing website changes")
     parser.add_argument("-m", "--mode", type=str, required=False, default="voice",
                         help="Choose between voice, email and both notifications. [voice|email|mix]")
-    parser.add_argument("-d", "--date", type=str, required=False, default="16/08",
-                        help="Rent starting date: 16/08 or 01/09 or 16/09")
+    parser.add_argument("-d", "--date", type=str, required=False, default="16/09",
+                        help="Rent starting date in format date/month.")
     parser.add_argument("-f", "--full_automation", required=False, action="store_true",
                         help="This flag allows to put the appearing offer to a basket. "
                              "That way your reservation will be saved for the next 30 minutes.")
@@ -55,13 +55,7 @@ def go_to_booking(driver, username, password, date):
     log_in(driver, username, password)
     logger.info("Log in done")
     logger.debug("Try to go the page starting with the given date")
-    if date == "16/08":
-        driver.find_element_by_xpath("/html/body/div[2]/section[1]/div/article/div/div/div/"
-                                     "section/div[1]/section/form/div/div[2]/div[2]/button").click()
-    elif date == "01/09":
-        driver.find_element_by_xpath("/html/body/div[2]/section[1]/div/article/div/div/div/"
-                                     "section/div[1]/section/form/div/div[2]/div[2]/button").click()
-    elif date == "16/09":
+    if date == "16/09":
         target = driver.find_element_by_xpath("/html/body/div[2]/section[1]/div/article/div/div/div/"
                                               "section/div[1]/section/form/div/div[3]/div[2]/button")
         driver.execute_script('arguments[0].scrollIntoView(true);', target)
@@ -74,6 +68,11 @@ def go_to_booking(driver, username, password, date):
     elif date == "16/10":
         target = driver.find_element_by_xpath("/html/body/div[2]/section[1]/div/article/div/div/div/"
                                               "section/div[1]/section/form/div/div[5]/div[2]/button")
+        driver.execute_script('arguments[0].scrollIntoView(true);', target)
+        target.click()
+    elif date == "01/11":
+        target = driver.find_element_by_xpath("/html/body/div[2]/section[1]/div/article/div/div/div/"
+                                              "section/div[1]/section/form/div/div[6]/div[2]/button")
         driver.execute_script('arguments[0].scrollIntoView(true);', target)
         target.click()
     else:
