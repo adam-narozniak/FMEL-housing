@@ -100,7 +100,7 @@ def sound_notification(duration, date):
         while now < begin_time + delta:
             os.system(f"""say "Possibly there is a new free place at FMEL on the {date}" """)
             now = datetime.datetime.now()
-    elif system_name.lower() == "win32":
+    elif system_name.lower() == "windows":
         engine = pyttsx3.init()
         while now < begin_time + delta:
             engine.say(f"Possibly there is a new free place at FMEL on the {date}")
@@ -134,8 +134,6 @@ def prepare_dirs():
     sc_after_book_was_clicked.mkdir(exist_ok=True)
     sc_after_select_was_clicked = screenshots / "after_select_was_clicked"
     sc_after_select_was_clicked.mkdir(exist_ok=True)
-    logging_path = pathlib.Path("./.logs")
-    logging_path.mkdir(exist_ok=True)
 
 
 def main(driver):
@@ -149,7 +147,7 @@ def main(driver):
     logger.info("Directories created")
     fmel_username, fmel_password = get_credentials(FMEL_CREDENTIALS_CONFIGURATION_PATH)
     logger.info("Credentials loaded")
-    if mode == "email":
+    if mode == "email" or mode == "mix":
         email_username, email_password = get_credentials(EMAIL_CREDENTIALS_CONFIGURATION_PATH)
         yag = set_up_email(email_username, email_password)
         to = email_username
@@ -181,7 +179,7 @@ def main(driver):
                 change_time = datetime.datetime.now()
                 print(f"page has changed at {change_time}!")
                 with open(f"./page_sources/new_offers/fmel_offer_starting_{date.replace('/', '.')}"
-                          f"_found_{change_time}.txt", "w") as f:
+                          f"_found_{str(change_time).replace(':', '-')}.txt", "w") as f:
                     f.write(driver.page_source)
                 # driver.execute_script("window.scrollTo(0, document.body.scrollHeight);")
                 target = driver.find_element_by_xpath(
@@ -189,17 +187,17 @@ def main(driver):
                     "div[2]/div[2]/div/div[2]/button")
                 driver.execute_script('arguments[0].scrollIntoView(true);', target)
                 driver.save_screenshot(f"./screenshots/new_offers/fmel_offer_starting_{date.replace('/', '.')}_"
-                                       f"found_{change_time}.png")
+                                       f"found_{str(change_time).replace(':', '-')}.png")
                 time.sleep(0.3)
                 if full_automation is True:
                     # click select button
                     target.click()
                     with open(f"./page_sources/after_select_was_clicked/fmel_offer_starting_{date.replace('/', '.')}"
-                              f"_found_{change_time}.txt", "w") as f:
+                              f"_found_{str(change_time).replace(':', '-')}.txt", "w") as f:
                         f.write(driver.page_source)
                     driver.save_screenshot(
                         f"./screenshots/after_select_was_clicked/fmel_offer_starting_{date.replace('/', '.')}"
-                        f"_found_{change_time}.png")
+                        f"_found_{str(change_time).replace(':', '-')}.png")
                     # click 'book now'
                     book_button = driver.find_element_by_xpath("/html/body/div[2]/section[1]/div/article/div/div/div/"
                                                                "section/div[1]/section/form/div/div[2]/div[2]/div[1]/"
@@ -208,11 +206,11 @@ def main(driver):
                     time.sleep(0.3)
 
                     with open(f"./page_sources/after_book_was_clicked/fmel_offer_starting_{date.replace('/', '.')}"
-                              f"_found_{change_time}.txt", "w") as f:
+                              f"_found_{str(change_time).replace(':', '-')}.txt", "w") as f:
                         f.write(driver.page_source)
                     driver.save_screenshot(
                         f"./screenshots/after_book_was_clicked/fmel_offer_starting_{date.replace('/', '.')}"
-                        f"_found_{change_time}.png")
+                        f"_found_{str(change_time).replace(':', '-')}.png")
                 logger.debug("Try to notify")
                 # notify about that
                 if mode == "voice":
@@ -239,5 +237,5 @@ if __name__ == "__main__":
             main(driver)
         except Exception as e:
             driver.quit()
-            logger.error(e)
+            logger.exception(e)
             print("Let the programmer know that the exception occurred to make this program work better.")
