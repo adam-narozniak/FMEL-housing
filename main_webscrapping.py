@@ -55,22 +55,22 @@ def go_to_booking(driver, username, password, date):
     log_in(driver, username, password)
     logger.info("Log in done")
     logger.debug("Try to go the page starting with the given date")
-    if date == "16/09":
+    if date == "16/10":
         target = driver.find_element_by_xpath("/html/body/div[2]/section[1]/div/article/div/div/div/"
                                               "section/div[1]/section/form/div/div[3]/div[2]/button")
         driver.execute_script('arguments[0].scrollIntoView(true);', target)
         target.click()
-    elif date == "01/10":
+    elif date == "01/11":
         target = driver.find_element_by_xpath("/html/body/div[2]/section[1]/div/article/div/div/div/"
                                               "section/div[1]/section/form/div/div[4]/div[2]/button")
         driver.execute_script('arguments[0].scrollIntoView(true);', target)
         target.click()
-    elif date == "16/10":
+    elif date == "16/11":
         target = driver.find_element_by_xpath("/html/body/div[2]/section[1]/div/article/div/div/div/"
                                               "section/div[1]/section/form/div/div[5]/div[2]/button")
         driver.execute_script('arguments[0].scrollIntoView(true);', target)
         target.click()
-    elif date == "01/11":
+    elif date == "01/12":
         target = driver.find_element_by_xpath("/html/body/div[2]/section[1]/div/article/div/div/div/"
                                               "section/div[1]/section/form/div/div[6]/div[2]/button")
         driver.execute_script('arguments[0].scrollIntoView(true);', target)
