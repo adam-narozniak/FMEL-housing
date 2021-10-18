@@ -4,24 +4,34 @@
 The works using google Chrome. Make sure that you have it installed. Additionally, you will have to install a driver 
 that enable __selenium__ (one of the libraries used in the program) to communicate with Chrome. I'll show you what do
 you have to do in the next few steps:
-* Check the Chrome version. = Open Chrome. Click the three dots in the right top corner, 
+* Check the Chrome version = Open Chrome. Click the three dots in the right top corner, 
   then Help and About Google Chrome.
 * Open this page https://sites.google.com/a/chromium.org/chromedriver/downloads and download ChromeDriver 
   corresponding to your Chrome version.
-* Place downloaded file in /usr/local/bin if you are using Mac/Linux or if you are on the Windows create a directory in
-\Program Files called WebDriver\bin. Then add this path to PATH. <br>
+  
+#### Mac/Linux
+* Unzip the file by double-clicking at the downloaded file.
+* Place downloaded file in /usr/local/bin.
+  You can do that by opening the terminal (command + space, type terminal, hit enter)<br>
+  ```mv Downloads/chromedriver /usr/local/bin/chromedriver```
+  
+#### Windows
+* Unzip the file
+* Create a directory in
+\Program Files called WebDriver\bin. Then add this path to the PATH. <br>
   ```setx /m path "%path%;<copy_your_path_with_Webdriver\bin_here>"```
 ## Install requirements
+Run the following command in the terminal <br>
 `pip install -r  requirements.txt`
 # Run
 Put your credentials (login and password) in:
 * ./resources/credentials_config.json for a __FMEL account__
 * ./resources/email_credentials_config.json for an __email account__
 
-Change directory (in command line) to the one containing python sciprts.
+Change directory (in command line) to the one containing python scripts.
 <br>Run: <br>
 `python3 main_webscrapping.py --mode voice --date "16/08" --refresh_rate 5 --full_automation`<br>
-See parameters explanation below.
+See the parameters' explanation below.
 ### Mode
 It can be: voice, email or mix (voice + email).
 
